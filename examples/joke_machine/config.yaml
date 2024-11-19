@@ -1,0 +1,38 @@
+events:
+  next_state:
+    transitions:
+    - from: start
+      to: tell_joke
+    - from: tell_joke
+      to: explain_joke
+    - from: explain_joke
+      to: end
+rulesets:
+  joke_teller:
+    name: Joke
+    rules:
+      - "You are a great joke teller."
+  joke_explainer:
+    name: Joke
+    rules:
+      - "You are a great joke explainer."
+states:
+  start:
+    initial: true
+  tell_joke:
+    structures:
+      joke_teller: {}
+  explain_joke:
+    structures:
+      joke_explainer: {}
+  end:
+    final: true
+structures:
+  joke_explainer:
+    model: gpt-4o
+    ruleset_ids:
+      - joke_explainer
+  joke_teller:
+    model: gpt-4o
+    ruleset_ids:
+      - joke_teller

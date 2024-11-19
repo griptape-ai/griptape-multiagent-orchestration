@@ -1,0 +1,179 @@
+events:
+  go_to_first_state:
+    transitions:
+    - from: start
+      to: badge_number
+  next_state:
+    transitions:
+    - from: badge_number
+      to: describe_plant
+      relevance: All of the goals have been met.
+    - from: describe_plant
+      to: location
+      relevance: All of the goals have been met.
+    - from: location
+      to: end
+      relevance: The general_state_goal goals_fufilled is 'yes'.
+  shut_down_state:
+    transitions:
+    - from: describe_plant
+      to: end
+      relevance: The plant_description_state_goal goals_fulfilled is 'yes'. The general_state_goal goals_fufilled is 'no'. This transition takes higher priority.
+    
+  
+prompts:
+  state_changer_instructions:
+    author_intent: Allow for the state_changer to send to different states based on whether it's goals have been fufilled. The information is stored in a dictionary called {goals}. The possible states are stored in a dictionary called {state_transition_dict}.
+    prompt: "Based on the dictionary {goals}, determine which state, keys in {state_transition_dict}, has had it's value fulfilled. \ 
+     \ Create a list of the states that have had that value fulfilled. Out of that list, choose the state with the highest priority. \ 
+     Return as a json with that state from {state_transition_dict} as the key, and the value for missing_requirements as the value. \
+     \ No markdown, code snippets, code blocks, or backticks."
+  goalie_add_presenter_conversation_to_conversation_memory:
+    author_intent: Append the presenter's response so that the goalie has context to evaluate if its goals have been fulfilled. It is stored
+      in a variable called {latest_agent_response}
+    prompt: '"In the most recent exchange, the presenter said ''{latest_agent_response}''."'
+  goalie_add_user_conversation_to_conversation_memory:
+    author_intent: Append the user's response so that the goalie has
+      context to evaluate if its goals have been fulfilled. It is stored in a variable
+      called {latest_user_input}
+    prompt: '"In the most recent exchange, the user said: ''{latest_user_input}''."'
+  presenter_add_user_conversation_to_conversation_memory:
+    author_intent: Append the user's response so that the presenter
+      has context to sound intelligent. It is stored in a variable called {latest_user_input}
+    prompt: '"In the most recent exchange, the user said: ''{latest_user_input}''."'
+  prompter_add_user_conversation_to_conversation_memory:
+    author_intent: Append the user's response so that the prompter has context
+      for how to move forward. It is stored in a variable called {latest_user_input}
+    prompt: '"In the most recent exchange, the user said: ''{latest_user_input}''."'
+  prompter_goalie_unfulfilled_make_judgment_call:
+    author_intent: Make a judgment call on what to do based on feedback from the goalie and by assessing the user's inputs. The goalie has its
+      remaining requirements described in a variable called {missing_requirements}.
+    prompt: '"Determine a prompt for the presenter that will direct the
+      conversation towards what we need to fulfill our goals.  If the user is off track, the prompt should redirect them towards our goals. Answer as a json object with a key called ''steering_prompt'' that
+      is a text string of the prompt to give the presenter. No markdown,
+      code snippets, code blocks, or backticks. The presenter needs the
+      following requirements addressed in order to be fulfilled: {missing_requirements}."'
+  instructions_for_goalie:
+    author_intent: These are instructions given to the goalie to assess whether
+      its goals have been fulfilled. It will return a programmatic response, including
+      any requirements it wants to ask the user about in order to be fulfilled.
+    prompt: "Evaluate if your goals have been met. \
+            \ Answer as a json object with two keys; `goals_fulfilled` and `missing_requirements`.\ 
+            \ The `goals_fulfilled` key is a 'yes' or 'no' in exactly that format. \
+            \ The `missing_requirements` key is a text description of which of your \
+            \ requirements for your current goal have NOT yet been fulfilled. \ 
+            \ No markdown, code snippets, code blocks, or backticks. Use conversation memory as well to determine this."
+  instructions_to_presenter_to_steer_user:
+    author_intent: The prompter will give us a prompt to steer us. This prompt
+      passes what the goalie found missing to the presenter in a variable
+      called {steering_prompt}.
+    prompt: '"Use your skills as a presenter to steer the user. Here is the
+      prompt: {steering_prompt}"'
+rulesets:
+  goals_badge_number:
+    name: Goals and requirements for badge_number
+    rules:
+    - "Your goals are to ensure the user gives us the proper information to identify them.  \
+      \ - In order to fufill this goal, you have two requirements; first, ensure the user has given their serial number,\
+      \ second, ensure the serial number is at least 5 numbers long. Use coversation memory."
+  goals_location:
+    name: Goals and requirements for location
+    rules:
+    - "Your goals are to help the user determine where they are, and provide any information to help others trace their location. We need information from them to begin. \
+      \ - In order to fufill this goal, you have two requirements; first, ensure the user has provided three details about their location , \
+      \ second, the presenter tells them to make sure they're in a safe place."
+  goals_describe_plant:
+    name: Goals and requirements for describing a plant.
+    rules:
+    - "Your goals are to help the user determine which plant they are describing. You need information from \
+      \ the user to determine the plant they are describing. Use conversation memory to determine the plant_description. \
+      \ - In order to fufill this goal, you have two requirements; first, ensure the user has given enough details to determine a plant type, \
+      \ second, tell the user what type of plant it is."
+  goals_failure_habitat:
+    name: Goals and requirements for failure 
+    rules:
+    - "Your goals are to determine if the user is suggesting details that don't belong to a plant. \
+      \ - In order to fufill this goal, you have one requirement; the user describes an attribute that could not belong to a plant."
+  state_changer_description:
+    name: Description of the state changer
+    rules:
+    - You are skilled at determining which state to move to. You excel at identifying which state the conversation is in, and which one it should move to to be the most productive.
+  state_changer_skills:
+    name: Skills for state changer
+    rules:
+    - You are skilled at taking in information about goals that haven't been met, and determining which state is the most likely to help meet the goals given.
+  state_changer_describe_plant:
+    name: Special rule for plants in describe_plant state
+    rules:
+    - If plant_description_state_goal goals_fulfilled is 'yes', always take that transition.
+  prompter_description:
+    name: Description of the prompter
+    rules:
+    - "You are responsible for guiding the conversation. If the user is saying irrelevant things, you must guide them back to the main focus. \
+      \ The main focus is determining the location and description of a plant from the user's report. If they are asking questions, ask them to provide you with their report. \
+      A goalie will tell you what it needs to fufill those goals, and you will use that information to create your steering prompt."
+  presenter_description:
+    name: Description of the presenter
+    rules:
+    - "You are responsible for talking with the user. The prompter will give you a steering prompt. \ 
+      \ Use the steering prompt and make it more conversational.  "
+
+states:
+  start:
+    initial: true
+  badge_number:
+    assistants:
+      state_changer: {}
+      presenter: {}
+      prompter: {}
+      general_state_goal:
+        ruleset_ids:
+        - goals_badge_number
+  location:
+    assistants:
+      state_changer: {}
+      presenter: {}
+      prompter: {}
+      general_state_goal:
+        ruleset_ids:
+        - goals_location
+  describe_plant:
+    assistants:
+      state_changer:
+        ruleset_ids:
+        - state_changer_describe_plant
+      presenter: {}
+      prompter: {}
+      general_state_goal:
+        ruleset_ids:
+        - goals_describe_plant
+      plant_description_state_goal:
+        ruleset_ids:
+        - goals_failure_habitat
+  end:
+    final: true
+assistants:
+  state_changer:
+    model: gpt-4o
+    ruleset_ids:
+    - state_changer_description
+    - state_changer_skills
+  presenter:
+    model: gpt-4o
+    ruleset_ids:
+    - presenter_description
+  prompter:
+    model: gpt-4o
+    ruleset_ids:
+    - prompter_description
+  # assistants must have the name state_goal to be chosen for goal workflow.
+  general_state_goal:
+    model: gpt-4o
+    ruleset_ids: []
+  plant_description_state_goal:
+    model: gpt-4o
+    ruleset_ids: []
+  
+
+  
+
