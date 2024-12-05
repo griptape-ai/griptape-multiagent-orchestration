@@ -17,7 +17,6 @@ from griptape.drivers import (
     OpenAiChatPromptDriver,
     LocalStructureRunDriver,
     GriptapeCloudEventListenerDriver,
-    GriptapeCloudAssistantDriver,
 )
 from griptape.events import BaseEvent, EventBus, EventListener, FinishStructureRunEvent
 from griptape.rules import Rule, Ruleset
@@ -26,7 +25,6 @@ from griptape.tasks import (
     PromptTask,
     StructureRunTask,
     CodeExecutionTask,
-    AssistantTask,
 )
 from griptape.utils import dict_merge
 from griptape.memory.structure import ConversationMemory
@@ -35,7 +33,6 @@ from statemachine import State, StateMachine
 from statemachine.factory import StateMachineMetaclass
 
 from griptape_statemachine.parsers import GoapConfigParser
-from workflows.research_workflow import ResearchWorkflow
 
 logger = logging.getLogger(__name__)
 logging.getLogger("griptape").setLevel(logging.ERROR)
@@ -651,16 +648,16 @@ def on_event(event):
     print("Ok it listened")
 
 
-if __name__ == "__main__":
-    EventBus.add_event_listener(
-        EventListener(on_event),
-    )
-    task = AssistantTask(
-        input=("Echo this back to me please"),
-        driver=GriptapeCloudAssistantDriver(
-            api_key=os.environ["GT_CLOUD_API_KEY"],
-            assistant_id="b8f88da7-51a4-4cd8-9093-09f224d5e1ee",
-            stream=False,
-        ),
-    )
-    task.run()
+# if __name__ == "__main__":
+#     EventBus.add_event_listener(
+#         EventListener(on_event),
+#     )
+#     task = AssistantTask(
+#         input=("Echo this back to me please"),
+#         driver=GriptapeCloudAssistantDriver(
+#             api_key=os.environ["GT_CLOUD_API_KEY"],
+#             assistant_id="b8f88da7-51a4-4cd8-9093-09f224d5e1ee",
+#             stream=False,
+#         ),
+#     )
+#     task.run()
