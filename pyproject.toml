@@ -7,8 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-#griptape = "^0.32"
-griptape = {git = "https://github.com/griptape-ai/griptape.git", rev = "feature/assistants", extras = ["drivers-web-search-duckduckgo", "drivers-web-scraper-trafilatura"]}
+griptape = "^0.32"
+#griptape = {git = "https://github.com/griptape-ai/griptape.git", rev = "feature/assistants", extras = ["drivers-web-search-duckduckgo", "drivers-web-scraper-trafilatura"]}
 python-statemachine = {extras = ["diagrams"], version = "^2.3.6"}
 pyyaml = "^6.0.2"
 schema = "^0.7.7"
