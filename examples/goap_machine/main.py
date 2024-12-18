@@ -25,10 +25,10 @@ def get_image() -> ImageFile:
 def create_statemachine() -> None:
     # Creates GoapMachine from the config.yaml in current directory
     cwd_path = Path.cwd()
-    config_path = cwd_path.joinpath(
-        Path("examples/goap_machine/lifehunter_config.yaml")
-    )
-    # config_path = cwd_path.joinpath(Path("config.yaml"))
+    # config_path = cwd_path.joinpath(
+    #     Path("examples/goap_machine/lifehunter_config.yaml")
+    # )
+    config_path = cwd_path.joinpath(Path("examples/goap_machine/config.yaml"))
     try:
         machine.value = GoapMachine.from_config_file(config_path)
     except Exception as e:
@@ -78,7 +78,7 @@ autoscroll = """
 
 with gr.Blocks(js=autoscroll) as demo:
     machine = gr.State(value=None)
-    label = gr.Markdown("# LifeHunter State Machine Example")
+    label = gr.Markdown("# GOAP State Machine Example")
     current_state = gr.Image(label="States", visible=True)
     with gr.Column():
         chatbot = gr.Chatbot()
