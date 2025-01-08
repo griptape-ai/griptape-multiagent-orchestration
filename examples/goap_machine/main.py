@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import contextvars
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 import gradio as gr
 from dotenv import load_dotenv
@@ -15,6 +16,16 @@ load_dotenv()
 
 if TYPE_CHECKING:
     from PIL.ImageFile import ImageFile
+
+
+# Used to ensure that EventBus works across Gradio and the StateMachine.
+def run_with_context(func: Callable) -> Callable:
+    ctx = contextvars.copy_context()
+
+    def wrapper(*args, **kwargs) -> Any:
+        return ctx.run(func, *args, **kwargs)
+
+    return wrapper
 
 
 def get_image() -> ImageFile:
@@ -77,7 +88,9 @@ autoscroll = """
 """
 
 with gr.Blocks(js=autoscroll) as demo:
+    # Creates the statemachine before the gradio launches.
     machine = gr.State(value=None)
+    create_statemachine()
     label = gr.Markdown("# GOAP State Machine Example")
     current_state = gr.Image(label="States", visible=True)
     with gr.Column():
@@ -86,11 +99,9 @@ with gr.Blocks(js=autoscroll) as demo:
             label="Chat Input",
             placeholder="Type message here...",
         )
-    msg.submit(on_message, [msg, chatbot], [msg, chatbot, current_state])
-    # msg.submit(on_message, [msg, chatbot], [msg, chatbot])
-
-# Creates the statemachine before the gradio launches.
-create_statemachine()
+    msg.submit(
+        run_with_context(on_message), [msg, chatbot], [msg, chatbot, current_state]
+    )
 # Launches the gradio app (the state machine is now in start_machine mode).
 demo.launch()
 

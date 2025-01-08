@@ -320,7 +320,7 @@ class GoapBaseMachine(StateMachine):
                         id=goal_structure,
                         # This will be something that has to change moving to cloud.
                         driver=LocalStructureRunDriver(
-                            structure_factory_fn=lambda gs=goal_structure: self.get_structure(
+                            create_structure=lambda gs=goal_structure: self.get_structure(
                                 gs
                             )
                         ),
@@ -504,16 +504,16 @@ class GoapBaseMachine(StateMachine):
                 if "state_goal" in goal_structure:
                     prompt = json.dumps({"input": input_value, "id": goal_structure})
                     run_task = CodeExecutionTask(
-                        # on_run=self.run_assistant_cet,
-                        run_fn=self.run_assistant_cet,
+                        on_run=self.run_assistant_cet,
                         input=prompt,
                         id=goal_structure,
                         child_ids=["end_task"],
                     )
+                    print(goal_structure)
                     structure.add_task(run_task)
                     end_task.add_parent(run_task)
-        except KeyError:
-            pass
+        except KeyError as e:
+            print("ERROR HAPPENED: ", e)
         # Add the end task that consolidates everything
         structure.add_task(end_task)
         return structure
@@ -528,7 +528,7 @@ class GoapBaseMachine(StateMachine):
         output_value = self.get_assistant(
             assistant_id, input_value
         )  # get the assistant and kick off the run
-        print("Finished get assistant, ", output_value)
+        print("Finished get assistant, ", assistant_id, " value: ", output_value)
         # Now poll and wait until we get the output from the assistant.
         # get the output of this response
         return TextArtifact(output_value)
@@ -649,15 +649,5 @@ def on_event(event):
 
 
 # if __name__ == "__main__":
-#     EventBus.add_event_listener(
-#         EventListener(on_event),
-#     )
-#     task = AssistantTask(
-#         input=("Echo this back to me please"),
-#         driver=GriptapeCloudAssistantDriver(
-#             api_key=os.environ["GT_CLOUD_API_KEY"],
-#             assistant_id="b8f88da7-51a4-4cd8-9093-09f224d5e1ee",
-#             stream=False,
-#         ),
-#     )
-#     task.run()
+#     machine =
+#     get_goal_workflow_assistants(input_value: str)

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from goap_base_machine import GoapBaseMachine
 from griptape.memory.structure import ConversationMemory
+from griptape.utils import StructureVisualizer
 
 if TYPE_CHECKING:
     from griptape.tools import BaseTool
@@ -132,10 +134,10 @@ class GoapMachine(GoapBaseMachine):
                                 # self.get_structure("presenter").run(output_prompt)
                                 self.get_assistant("presenter", output_prompt)
                             case _:
+                                pass
                                 # self.outputs_to_user.append(
                                 #     f"***DEBUG: Got an event from structure: {structure_id}"
                                 # )
-                                pass
                     case _:
                         pass
             case "user_input":
@@ -195,3 +197,12 @@ class GoapMachine(GoapBaseMachine):
 
             # Generate a prompt that steers us.
         return output_prompt
+
+
+if __name__ == "__main__":
+    pass
+    # config_path = Path.cwd().joinpath(Path("examples/goap_machine/config.yaml"))
+    # machine = GoapMachine.from_config_file(config_path)
+    # machine.start_machine()
+    # structure = machine.get_goal_workflow_assistants("hi")
+    # print(StructureVisualizer(structure).to_url())
