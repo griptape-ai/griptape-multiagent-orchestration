@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from goap_base_machine import GoapBaseMachine
 from griptape.memory.structure import ConversationMemory
-from griptape.utils import StructureVisualizer
 
 if TYPE_CHECKING:
     from griptape.tools import BaseTool
