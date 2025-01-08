@@ -509,11 +509,10 @@ class GoapBaseMachine(StateMachine):
                         id=goal_structure,
                         child_ids=["end_task"],
                     )
-                    print(goal_structure)
                     structure.add_task(run_task)
                     end_task.add_parent(run_task)
-        except KeyError as e:
-            print("ERROR HAPPENED: ", e)
+        except KeyError:
+            pass
         # Add the end task that consolidates everything
         structure.add_task(end_task)
         return structure
@@ -639,13 +638,6 @@ class GoapBaseMachine(StateMachine):
             if response.status_code != 204:
                 errormsg = f"Deleting ruleset unsuccessful: {response}"
                 raise ValueError(errormsg)
-
-
-# TODO:
-# Use the new driver to perform a structure run task that subscribes to the eventbus.
-def on_event(event):
-    print(event)
-    print("Ok it listened")
 
 
 # if __name__ == "__main__":
